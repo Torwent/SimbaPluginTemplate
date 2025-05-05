@@ -1,0 +1,13 @@
+[package]
+name = "wasp-input"
+version = "0.1.0"
+edition = "2021"
+description = "wasp-input"
+
+[lib]
+name = "wasp_input"
+crate-type = ["cdylib"]
+
+[dependencies]
+libc = "0.2"
+winapi = { version = "0.3", features = ["libloaderapi"] }
