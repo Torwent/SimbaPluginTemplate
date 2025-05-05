@@ -24,7 +24,7 @@ const PASCAL_EXPORTS: &[(&str, &str)] = &[
 // dll functions
 #[no_mangle]
 pub extern "C" fn TestHelloWorld() {
-    println!("Hello World!");
+    println!("Hello World!\r\n");
 }
 
 #[no_mangle]

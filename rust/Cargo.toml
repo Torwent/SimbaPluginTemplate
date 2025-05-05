@@ -1,11 +1,11 @@
 [package]
-name = "wasp-input"
+name = "SimbaPlugin"
 version = "0.1.0"
 edition = "2021"
-description = "wasp-input"
+description = "SimbaPlugin"
 
 [lib]
-name = "wasp_input"
+name = "simba_plugin"
 crate-type = ["cdylib"]
 
 [dependencies]
