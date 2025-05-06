@@ -2,10 +2,14 @@ use std::ffi::CString;
 use std::os::raw::{c_char, c_int, c_long, c_void};
 use std::ptr;
 
+use windows::core::PCSTR;
 #[cfg(windows)]
-use winapi::{
-    shared::minwindef::{BOOL, DWORD, HINSTANCE, HMODULE, LPVOID, TRUE},
-    um::libloaderapi::GetProcAddress,
+use windows::{
+    core::BOOL,
+    Win32::{
+        Foundation::{HINSTANCE, HMODULE, TRUE},
+        System::LibraryLoader::GetProcAddress,
+    },
 };
 
 #[cfg(unix)]
@@ -84,24 +88,28 @@ pub extern "C" fn GetTypeInfo(
     index
 }
 
+#[cfg(windows)]
 unsafe fn get_proc_address(name: *const c_char) -> *mut c_void {
-    #[cfg(windows)]
-    return GetProcAddress(MODULE, name) as _;
-    #[cfg(unix)]
+    let name_str = PCSTR::from_raw(name as *const u8);
+    let func_ptr = GetProcAddress(MODULE, name_str);
+    return std::mem::transmute(func_ptr);
+}
+#[cfg(unix)]
+unsafe fn get_proc_address(name: *const c_char) -> *mut c_void {
     return dlsym(RTLD_DEFAULT, name);
 }
 
 #[cfg(windows)]
 #[no_mangle]
-pub static mut MODULE: HMODULE = ptr::null_mut();
+pub static mut MODULE: HMODULE = HMODULE(ptr::null_mut());
 
 #[cfg(windows)]
 #[no_mangle]
 pub extern "system" fn DllMain(
     hinst_dll: HINSTANCE,
-    _fdw_reason: DWORD,
-    _lpv_reserved: LPVOID,
+    _fdw_reason: u32, // DWORD is u32 in windows crate
+    _lpv_reserved: *mut std::ffi::c_void,
 ) -> BOOL {
-    unsafe { MODULE = hinst_dll };
+    unsafe { MODULE = HMODULE(hinst_dll.0) };
     TRUE
 }
